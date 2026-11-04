@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SIYA</string>
+    <string name="siya_accessibility_description">Allows SIYA to read visible on-screen text and assist with user-requested navigation.</string>
+</resources>
