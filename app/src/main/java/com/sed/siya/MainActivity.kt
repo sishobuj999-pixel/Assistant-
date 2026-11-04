@@ -17,12 +17,12 @@ import java.util.Locale
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var status: TextView
     private lateinit var tts: TextToSpeech
-    private lateinit var router: CommandRouter
+    private lateinit var router: CommandRouter\n    private val conversationState = ConversationState()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         tts = TextToSpeech(this, this)
-        router = CommandRouter(this)
+        router = CommandRouter(this, conversationState)
 
         status = TextView(this).apply {
             text = "SIYA ready"
