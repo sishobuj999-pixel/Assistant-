@@ -17,10 +17,12 @@ import java.util.Locale
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var status: TextView
     private lateinit var tts: TextToSpeech
+    private lateinit var router: CommandRouter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         tts = TextToSpeech(this, this)
+        router = CommandRouter(this)
 
         status = TextView(this).apply {
             text = "SIYA ready"
@@ -31,10 +33,17 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             text = "Speak to SIYA"
             setOnClickListener { startListening() }
         }
+        val accessibility = Button(this).apply {
+            text = "Enable SIYA Screen Control"
+            setOnClickListener {
+                startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            }
+        }
         setContentView(LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             addView(status)
             addView(listen)
+            addView(accessibility)
         })
     }
 
@@ -45,6 +54,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "bn-BD")
         }
         startActivityForResult(intent, 11)
     }
@@ -55,13 +65,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (requestCode == 11 && resultCode == RESULT_OK) {
             val command = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull().orEmpty()
             status.text = command
-            speak("I heard: $command")
+            val result = router.handle(command)
+            speak(result.reply)
+            result.action?.invoke()
         }
     }
 
     override fun onInit(statusCode: Int) {
         if (statusCode == TextToSpeech.SUCCESS) {
-            tts.language = Locale.US
+            tts.language = Locale("bn", "BD")
         }
     }
 
